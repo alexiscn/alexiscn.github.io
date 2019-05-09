@@ -23,6 +23,37 @@ var hq_str_sh601933="永辉超市,9.390,9.480,9.400,9.650,9.310,9.400,9.420,4503
 
 而且还能一次请求多个股票的数据，用逗号分隔即可。
 
+定义对应的Model为
+
+```swift
+class Stock: NSObject, Codable {
+    
+    var code: String
+
+    /// 股票简称
+    var symbol: String = "永辉超市"
+    
+    /// 今日开盘价
+    var openPrice: Float = 0.0
+    
+    /// 昨日收盘价
+    var lastClosedPrice: Float = 0.0
+    
+    /// 最近成交价格
+    var current: Float = 10.24
+    
+    /// 最高成交价
+    var high: Float = 0.0
+    
+    /// 最低成交价
+    var low: Float = 0.0
+
+    init(code: String) {
+        self.code = code
+    }
+}
+```
+
 ### 行情
 
 ### 搜索建议
@@ -40,6 +71,8 @@ NSTableView 本身不支持滑动，需要嵌套在 NSScrollView 中才能滑动
 
 
 #### 分隔符
+
+通过设置tableView的 GridMaskStyle 可以设置分隔符的样式。但是
 
 ## 
 
