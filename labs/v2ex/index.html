@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en-us">
+   <head>
+      <meta charset="utf-8">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      <title>V2EX - Way to Explorer</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <script src="js/iSlider.min.js"></script>
+      <link rel="stylesheet" href="css/index.css">
+      <link rel="stylesheet" href="css/iSlider.min.css">
+      <link rel="icon" type="image/png" href="images/favicon.png" />
+   </head>
+   <body>
+      <div class="container">
+         <div class="left">
+            <div class="app">
+                <img class="app-logo" src="images/logo.png">
+                <h1>V2 - 好玩有趣的社区</h1>
+                <p>V2 is a community of start-ups, designers, developers and creative people. </p>
+                <div class="app-actions">
+                    <a class="v2ex-app" href="#"><img src="images/download-ios.svg"></a>
+                </div>
+                <p class="app-powered"> V2 is open sourced at <a href="https://github.com/alexiscn/v2ex">Github</a> . If your have any problem, please <a href="https://github.com/alexiscn">contact me</a> .</p>
+            </div>
+         </div>
+         <div class="right">
+            <div id="iSlider-wrapper">
+            </div>
+            <img class="frame" src="images/frame.png" />
+         </div>
+      </div>
+      <script type="text/javascript">
+        var list = [
+            { content: "images/01.png" },
+            { content: "images/02.png" },
+            { content: "images/03.png" },
+            { content: "images/04.png" },
+            { content: "images/05.png" },
+            { content: "images/06.png" },
+            { content: "images/07.png" },
+            { content: "images/08.png" },
+            { content: "images/09.png" },
+            { content: "images/10.png" },
+            { content: "images/11.png" },
+            { content: "images/12.png" },
+            { content: "images/13.png" }
+        ]
+        var S = new iSlider(document.getElementById('iSlider-wrapper'), list, {
+            isAutoplay: 1,
+            isLooping: 1,
+            isOverspread: 1,
+            animateTime: 800
+        });
+      </script>
+   </body>
+</html>
