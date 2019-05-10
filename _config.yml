@@ -16,7 +16,7 @@
 title: Shuifeng's Blog
 email: 
 description: >- # this means to ignore newlines until "baseurl:"
-  Write an
+  A blog of iOS development
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: 
@@ -27,6 +27,9 @@ markdown: kramdown
 theme: minima
 plugins:
   - jekyll-feed
+
+disqus:
+    shortname: alexiscn
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
