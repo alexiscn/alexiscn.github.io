@@ -121,4 +121,6 @@ override func viewDidLoad() {
     }
 ```
 
+<p style='text-align:center'>
 <img src='/assets/images/2019/NSTableView-DragDrop-Gap.gif' width='370' />
+</p>

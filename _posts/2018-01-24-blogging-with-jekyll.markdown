@@ -14,7 +14,7 @@ categories: Jekyll Github
 
 ## 本机安装Jekyll
 
-安装Jekyll十分简单，可以运行如下的命令。可能需要注意的是ruby的版本不能太旧
+安装Jekyll十分简单，可以运行如下的命令。可能需要注意的是ruby的版本不能太旧，否则会报一堆错误。
 
 ```bash
 $ gem install bundler jekyll
@@ -26,15 +26,29 @@ $ gem install bundler jekyll
 
 生成的目录文件如下：
 
-![](/assets/images/2018/jekyll-blog-files.png)
+<p style='text-align:center'>
+<img src='/assets/images/2018/jekyll-blog-files.png' width='423' />
+</p>
 
-运行 `bundle exec jekyll serve` 进行本地预览
+稍微解释一下文件夹的内容：
 
-![](/assets/images/2018/jekyll-blog-preview.jpg)
+* _config.yml 是用来配置
+* _posts 文件夹主要存放markdown格式的文章
+* 404.html 当访问一个地址找不到的时候显示404.html
+* about.md
+* Gemfile
+* index.md
+
+
+运行 `bundle exec jekyll serve` 进行本地预览，效果图如下：
+
+<p style='text-align:center'>
+<img src='/assets/images/2018/jekyll-blog-preview.jpg' width='500'/>
+</p>
 
 ## 配置主题
 
-通过 `jekyll new`命令创建的博客默认使用的`minima`主题
+通过 `jekyll new`命令创建的博客默认使用的`minima`主题。可以配置如标题
 
 ## 配置域名
 
