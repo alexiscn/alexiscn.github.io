@@ -29,7 +29,7 @@ plugins:
   - jekyll-feed
 
 disqus:
-    shortname: alexiscn
+  shortname: alexiscn
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
