@@ -35,6 +35,18 @@ var hq_str_sh601933="永辉超市,9.390,9.480,9.400,9.650,9.310,9.400,9.420,4503
 var hq_str_sh601933="永辉超市,9.390,9.480,9.400,9.650,9.310,9.400,9.420,45031643,427349791.000,38767,9.400,19100,9.390,26500,9.380,14000,9.370,20400,9.360,1200,9.420,9300,9.430,39200,9.440,122072,9.450,26300,9.460,2019-05-09,15:00:00,00";
 var hq_str_sz000651="格力电器,51.880,52.330,51.800,52.520,50.520,51.790,51.800,73733501,3800419825.700,5300,51.790,62400,51.780,6000,51.770,8700,51.760,5946,51.750,113623,51.800,17400,51.810,6400,51.820,4000,51.830,2200,51.840,2019-05-09,15:00:03,00";
 ```
+| 字段索引 | 字段名称 | 数据实例 | 字段说明 |
+| -- | -- | -- | -- |
+| 0 | 股票简称 | 永辉超市 | |
+| 1 | 今日开盘价 | 9.88 | |
+| 2 | 昨日收盘价 | 9.66 | |
+| 3 | 最近成交价 | 10.24 | |
+| 4 | 最高成交价 | 10.88 | 当天最高成交价格 |
+| 5 | 最低成交价 | 9.11 | |
+| 6 | 买入价 | 10.25 | |
+| 7 | 卖出价 | 10.31 | |
+| 8 | 成交数量 | 5200 | 股为单位 |
+| 9 | 成交金额 | xxx | |
 
 我们对其中的股票名称、开盘价、当前价格、昨天收盘价等字段感兴趣，解析字符串的代码比较简单就不贴了。
 
@@ -89,7 +101,44 @@ var suggestvalue="格力电器,11,000651,sz000651,格力电器,,格力电器,99;
 
 #### 滑动
 
-NSTableView 本身不支持滑动，需要嵌套在 NSScrollView 中才能滑动。
+NSTableView 本身不支持滑动，需要嵌套在 NSScrollView 中才能滑动。通过是直接在Storyboard或者Xib中进行布局，然后添加IBOutlet到ViewController中，也可以在代码中创建NSScrollView与NSTableView，设置 TableView为ScrollView的documentView。
+
+```swift
+scrollView = NSScrollView(frame: .zero)
+scrollView.automaticallyAdjustsContentInsets = false
+scrollView.drawsBackground = false
+scrollView.hasVerticalScroller = true
+scrollView.borderType = .noBorder
+scrollView.backgroundColor = .clear
+view.addSubview(scrollView)
+scrollView.snp.makeConstraints { make in
+    make.leading.trailing.equalToSuperview()
+    make.top.equalToSuperview()
+    make.bottom.equalToSuperview()
+}
+```
+
+上传代码创建了
+
+```swift
+tableView = NSTableView()
+tableView.rowHeight = 40.0
+tableView.backgroundColor = NSColor(white: 1, alpha: 0.6)
+tableView.register(NSNib(nibNamed: "StockTableCellView", bundle: nil), forIdentifier: reuseIdentifier)
+tableView.selectionHighlightStyle = .none
+tableView.dataSource = self
+tableView.delegate = self
+tableView.floatsGroupRows = true
+tableView.intercellSpacing = NSSize.zero
+tableView.registerForDraggedTypes([dragType])
+tableView.draggingDestinationFeedbackStyle = .gap
+scrollView.documentView = tableView
+
+let column = NSTableColumn()
+column.width = view.bounds.width
+tableView.headerView = nil
+tableView.addTableColumn(column)
+```
 
 
 #### 分隔符
