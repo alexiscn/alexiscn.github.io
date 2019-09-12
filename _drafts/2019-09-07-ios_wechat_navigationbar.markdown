@@ -5,16 +5,46 @@ date:   2019-09-07 11:33:10 +0800
 tag: WeChat
 ---
 
+iOS项目开发中，难免被iOS导航栏折，比较折腾的地方在:
+
+- 自定义返回图标
+- 纯色导航栏与系统导航栏的平滑切换
+- 系统导航栏与隐藏导航栏的平滑切换
+- 一些特立独行的PM或UI想要扩大导航栏的高度，比如50pt（系统默认是 44pt）
+
+> 而且产品经常会飘来一句话：“咦，微信的导航栏怎么这么平滑”
+
+## 常见自定义导航栏 
+
+### 设置背景透明
+
+```swift
+navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+```
+
+### 隐藏导航栏底部黑线
+
+```swift
+navigationController?.navigationBar.shadowImage = UIImage()
+```
+
+### 自定义返回按钮图标
+
+```swift
+navigationController?.navigationBar.backIndicatorImage = UIImage(named: "icons_outlined_back")
+navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(named: "icons_outlined_back")
+```
 
 ## 准备工具
 
 - 某某助手上下载 微信.ipa
 - class-dump
 - hopper disassembler
+- [可选]一台越狱设备
 
 ## 导出头文件
 
-```
+```sh
 $ class-dump WeChat.app -H -o headers
 ```
 
@@ -24,6 +54,8 @@ $ class-dump WeChat.app -H -o headers
 - FakeNavigationBar.h
 - MMUINavigationController.h
 - MMUIViewController.h
+
+此时大概的猜测是：微信使用的是系统导航栏，然后在页面中进行了特殊处理以上遇到的问题
 
 ## MMUINavigationBar
 
@@ -36,7 +68,6 @@ $ class-dump WeChat.app -H -o headers
 }
 
 @property(retain, nonatomic) UIView *effectSubview; // @synthesize effectSubview=_effectSubview;
-- (void).cxx_destruct;
 - (id)hitTest:(struct CGPoint)arg1 withEvent:(id)arg2;
 - (void)setAlpha:(double)arg1;
 - (void)setBarStyle:(long long)arg1;
@@ -45,7 +76,6 @@ $ class-dump WeChat.app -H -o headers
 - (id)findHiddenView:(id)arg1;
 - (void)adjustShadowView;
 - (void)layoutSubviews;
-
 @end
 ```
 
@@ -57,10 +87,8 @@ FakeNavigationBar 是继承自 MMUINavigationBar，提供了一个可以添加su
 @interface FakeNavigationBar : MMUINavigationBar
 {
 }
-
 - (void)layoutSubviews;
 - (void)didAddSubview:(id)arg1;
-
 @end
 ```
 
@@ -74,7 +102,6 @@ FakeNavigationBar 是继承自 MMUINavigationBar，提供了一个可以添加su
     UIViewController *_popingViewController;
 }
 
-- (void).cxx_destruct;
 - (id)navigationController:(id)arg1 interactionControllerForAnimationController:(id)arg2;
 - (id)navigationController:(id)arg1 animationControllerForOperation:(long long)arg2 fromViewController:(id)arg3 toViewController:(id)arg4;
 - (void)layoutViewsForTaskBar;
@@ -87,37 +114,19 @@ FakeNavigationBar 是继承自 MMUINavigationBar，提供了一个可以添加su
 - (id)initWithRootViewController:(id)arg1;
 - (id)init;
 
-// Remaining properties
-@property(readonly, copy) NSString *debugDescription;
-@property(readonly, copy) NSString *description;
-@property(readonly) unsigned long long hash;
-@property(readonly) Class superclass;
-
 @end
 ```
 
 ## MMUIViewController
 
-MMUIViewController 是微信中所有ViewController的基类。由于头文件代码较多，我仅将与导航栏相关的代码保留，其余都删掉了。
+`MMUIViewController` 是微信中所有ViewController的基类。由于头文件代码较多，我仅将与导航栏相关的代码保留，其余都删掉了。
 
 ```objective-c
 @interface MMUIViewController : UIViewController <IUiUtilExt, MMUIViewControllerDelegate, UIGestureRecognizerDelegate>
 {
-    _Bool m_isPopByClickingURL;
-    MMLoadingView *m_loadingViewX;
     unsigned int m_uiVcType;
-    UILabel *m_newsTitleRecordLabel;
-    NSMutableArray *m_fullScreenViews;
-    _Bool m_bAnimated;
-    _Bool m_bIsBeingPoped;
-    _Bool m_bInteractivePopEnabled;
-    _Bool m_bDisableAdjustInsetAndOffset;
-    double lastScreenWidth;
     UINavigationController *m_navigationController;
     MMTitleView *m_baseTitleView;
-    NSMutableDictionary *m_dicDeepLink;
-    NSMutableDictionary *m_dicContentInsetAutolayout;
-    NSMutableArray *m_arrEndUserOpInfo;
     MMDelegateProxy<UIGestureRecognizerDelegate> *m_interactivePopGestureRecognizerDelegate;
     UIBarButtonItem *m_leftBarBtnItem;
     UIBarButtonItem *m_rightBarBtnItem;
@@ -132,63 +141,19 @@ MMUIViewController 是微信中所有ViewController的基类。由于头文件�
     UIView *m_navRightView;
     double m_navTitleOffset;
     _Bool m_navCustomView;
-    _Bool _isDuringInteractivePop;
-    _Bool _m_bStopPopWhenDeleteContact;
-    UIView *bottomView;
-    UIViewController *_presentingModalViewController;
-    UIViewController *_presentedModalViewController;
     MMNavBarInteractiveConfig *_navBarInteractiveConfig;
-    WCEventTrackingSystemConfig *_trackingSystemConfig;
-    UIPanGestureRecognizer *_scrollViewInteractivePanGesture;
 }
 
 @property(retain, nonatomic) UIPanGestureRecognizer *scrollViewInteractivePanGesture; // @synthesize scrollViewInteractivePanGesture=_scrollViewInteractivePanGesture;
 @property(retain, nonatomic) WCEventTrackingSystemConfig *trackingSystemConfig; // @synthesize trackingSystemConfig=_trackingSystemConfig;
 @property(retain, nonatomic) MMNavBarInteractiveConfig *navBarInteractiveConfig; // @synthesize navBarInteractiveConfig=_navBarInteractiveConfig;
-@property(nonatomic) _Bool m_bStopPopWhenDeleteContact; // @synthesize m_bStopPopWhenDeleteContact=_m_bStopPopWhenDeleteContact;
-@property(nonatomic) _Bool isDuringInteractivePop; // @synthesize isDuringInteractivePop=_isDuringInteractivePop;
-@property(nonatomic) _Bool m_bAnimating; // @synthesize m_bAnimating=_m_bAnimating;
-@property(nonatomic) __weak UIViewController *presentedModalViewController; // @synthesize presentedModalViewController=_presentedModalViewController;
-@property(nonatomic) __weak UIViewController *presentingModalViewController; // @synthesize presentingModalViewController=_presentingModalViewController;
-@property(nonatomic) _Bool m_bIsBeingInteractivePop; // @synthesize m_bIsBeingInteractivePop;
 @property(retain, nonatomic) NSMutableArray *m_arrEndUserOpInfo; // @synthesize m_arrEndUserOpInfo;
-@property(nonatomic) _Bool m_bDisableAdjustInsetAndOffset; // @synthesize m_bDisableAdjustInsetAndOffset;
-@property(nonatomic) _Bool m_bInteractivePopEnabled; // @synthesize m_bInteractivePopEnabled;
-@property(nonatomic) _Bool m_bIsBeingPoped; // @synthesize m_bIsBeingPoped;
-@property(nonatomic) _Bool m_bAnimated; // @synthesize m_bAnimated;
-@property(retain, nonatomic) UIView *bottomView; // @synthesize bottomView;
-@property(retain, nonatomic) UILabel *m_newsTitleRecordLabel; // @synthesize m_newsTitleRecordLabel;
 @property(nonatomic) unsigned int m_uiVcType; // @synthesize m_uiVcType;
-@property(retain, nonatomic) MMLoadingView *loadingViewX; // @synthesize loadingViewX=m_loadingViewX;
-- (void).cxx_destruct;
+
 - (id)mmNavigationController:(id)arg1 interactionControllerForAnimationController:(id)arg2;
 - (id)mmNavigationController:(id)arg1 animationControllerForOperation:(long long)arg2 fromViewController:(id)arg3 toViewController:(id)arg4;
-- (_Bool)gestureRecognizer:(id)arg1 shouldBeRequiredToFailByGestureRecognizer:(id)arg2;
-- (_Bool)gestureRecognizer:(id)arg1 shouldRequireFailureOfGestureRecognizer:(id)arg2;
-- (_Bool)shouldInteractivePop;
-- (_Bool)gestureRecognizer:(id)arg1 shouldRecognizeSimultaneouslyWithGestureRecognizer:(id)arg2;
 - (_Bool)gestureRecognizerShouldBegin:(id)arg1;
 - (_Bool)interactivePopGestureRecognizerShouldBegin:(id)arg1;
-- (_Bool)gestureRecognizer:(id)arg1 shouldReceiveTouch:(id)arg2;
-- (void)resignSubviewResponder:(id)arg1;
-- (void)viewWillInteractivePop;
-- (void)viewDidBeInteractivePoped;
-- (void)viewWillBeInteractivePoped;
-- (void)viewWillDismiss:(_Bool)arg1;
-- (void)viewDidPresent:(_Bool)arg1;
-- (void)viewWillPresent:(_Bool)arg1;
-- (void)viewDidPop:(_Bool)arg1;
-- (void)viewWillPop:(_Bool)arg1;
-- (void)viewDidPush:(_Bool)arg1;
-- (void)viewWillPush:(_Bool)arg1;
-- (void)viewDidBeDismissed:(_Bool)arg1;
-- (void)viewWillBeDismissed:(_Bool)arg1;
-- (void)viewDidBePresented:(_Bool)arg1;
-- (void)viewWillBePresented:(_Bool)arg1;
-- (void)viewDidBePoped:(_Bool)arg1;
-- (void)viewWillBePoped:(_Bool)arg1;
-- (void)viewDidBePushed:(_Bool)arg1;
-- (void)viewWillBePushed:(_Bool)arg1;
 - (void)onNavigationBarHiddenChanged;
 - (void)onNavigationBarAlphaChanged;
 - (void)removeFakeNaviView;
@@ -207,7 +172,6 @@ MMUIViewController 是微信中所有ViewController的基类。由于头文件�
 - (_Bool)useWhiteForegroundColor;
 - (id)navigationTitleColor;
 - (void)onNavigationBarBackgroundColorChange;
-- (void)traitCollectionDidChange:(id)arg1;
 - (_Bool)showNavigationBarSepLine;
 - (_Bool)navigationBarBlurEffect;
 - (id)navigationBarBackgroundColor;
@@ -215,17 +179,6 @@ MMUIViewController 是微信中所有ViewController的基类。由于头文件�
 - (void)updateStatusBarColor;
 - (_Bool)useBlackStatusbar;
 - (_Bool)hidesStatusBar;
-- (void)didDisappearToSearchController;
-- (void)willDisappearToSearchController;
-- (void)didAppearFromSearchController;
-- (void)willAppearFromSearchController;
-- (void)viewDidDisappear:(_Bool)arg1;
-- (void)viewWillDisappear:(_Bool)arg1;
-- (void)viewDidPopOrDismiss:(_Bool)arg1;
-- (void)viewWillPopOrDismiss:(_Bool)arg1;
-- (void)viewDidBePushOrPresent:(_Bool)arg1;
-- (void)viewWillBePushOrPresent:(_Bool)arg1;
-- (void)willAnimateRotationToInterfaceOrientation:(long long)arg1 duration:(double)arg2;
 - (void)protectStatusBarFromBeingFuckedByForeGround:(SEL)arg1;
 - (void)setStatusBarFontBlack;
 - (void)setStatusBarFontWhite;
@@ -233,12 +186,7 @@ MMUIViewController 是微信中所有ViewController的基类。由于头文件�
 - (void)setStatusBarHidden:(_Bool)arg1;
 - (void)setTopBarsHidden:(_Bool)arg1 animated:(_Bool)arg2;
 - (void)changeTopBarsHiddenAnimated:(_Bool)arg1;
-- (double)tableView:(id)arg1 heightForFooterInSection:(long long)arg2;
-- (double)tableView:(id)arg1 heightForHeaderInSection:(long long)arg2;
-- (id)tableView:(id)arg1 viewForFooterInSection:(long long)arg2;
-- (id)tableView:(id)arg1 viewForHeaderInSection:(long long)arg2;
 - (void)setTitleOnly:(id)arg1;
-- (void)willDismissAndShow;
 - (void)setTitleInterfaceOritation:(long long)arg1;
 - (void)reloadTitleView;
 - (double)getRightBarButtonWidth;
@@ -246,22 +194,8 @@ MMUIViewController 是微信中所有ViewController的基类。由于头文件�
 - (double)adjustedStatusBarHeight;
 - (_Bool)hasTitle;
 - (void)setTitleView:(id)arg1;
-- (void)setTitle:(id)arg1 subTitle:(id)arg2 leftLoading:(_Bool)arg3 rightView:(id)arg4 titleOffset:(double)arg5;
-- (void)setTitle:(id)arg1 subTitle:(id)arg2 leftLoading:(_Bool)arg3 rightView:(id)arg4;
-- (void)setTitle:(id)arg1 leftLoading:(_Bool)arg2;
-- (void)setTitle:(id)arg1 subTitle:(id)arg2;
-- (void)setTitle:(id)arg1 rightView:(id)arg2;
-- (id)getTitleColor;
 - (void)setTitleColor:(id)arg1;
 - (void)setTitle:(id)arg1;
-- (void)willShow;
-- (void)willDisshow;
-- (void)didDisshow;
-- (void)didAppear;
-- (void)willDisappear;
-- (void)adjustView;
-- (void)willAppear;
-- (void)setIsPopByClickingURL;
 - (void)restoreNavigationBarBkg;
 - (void)removeNavigationBarBkg;
 - (void)onMainWindowFrameChanged;
@@ -269,7 +203,6 @@ MMUIViewController 是微信中所有ViewController的基类。由于头文件�
 - (void)viewDidTransitionToNewSize;
 - (void)setAutolayoutTopOffset:(double)arg1 forView:(id)arg2;
 - (double)getContentViewYforTranslucentNaviBar;
-- (void)observeValueForKeyPath:(id)arg1 ofObject:(id)arg2 change:(id)arg3 context:(void *)arg4;
 - (void)updateNavibarSepline;
 - (void)adjustViewAndNavBarRect;
 - (id)titleView;
@@ -281,15 +214,9 @@ MMUIViewController 是微信中所有ViewController的基类。由于头文件�
 - (void)restoreNavigationBarToFullSizeAnimatedWithDuration:(double)arg1;
 - (void)restoreNavigationBarToFullSizeOnScrollToTop;
 - (void)updateFadeBkgAlpha;
-- (void)internalHandleFade:(id)arg1;
-- (void)onScrollViewInteractivePan:(id)arg1;
-- (void)onScrollViewContentOffsetChanged:(struct CGPoint)arg1;
 - (void)viewDidLayoutSubviewsInNavBar;
 - (void)viewWillDisappearInNavBar:(_Bool)arg1;
 - (void)viewWillAppearInNavBar:(_Bool)arg1;
-@property(readonly, nonatomic) UIView *transitionRootView; // @dynamic transitionRootView;
-
-- (void)setWCBizAuthTitle:(id)arg1;
 
 @end
 
@@ -299,3 +226,5 @@ MMUIViewController 是微信中所有ViewController的基类。由于头文件�
 
 - (_Bool)useTransparentNavibar;
 - (_Bool)navigationBarBlurEffect;
+
+## 
