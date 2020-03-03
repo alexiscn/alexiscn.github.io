@@ -1,19 +1,19 @@
 ---
 layout: post
-title:  "创建CocoaPods、Carthage、Swift Package Manager的类库"
+title:  "创建支持CocoaPods、Carthage、Swift Package Manager的开源类库"
 date:   2020-03-02 19:32:10 +0800
 tag: 经验分享
 ---
 
-有时候我们封装了一些不错的可复用的类库，希望发布到Github当轮子用，用希望类库同时支持 `CocoaPods`、`Carthage` 和 `Swift Package Manager`方式的集成到iOS项目中。
+有时候我们封装了一些不错的可复用的类库，希望发布到Github当轮子用，希望类库同时支持 `CocoaPods`、`Carthage` 和 `Swift Package Manager`方式的集成到iOS项目中。
 
 ### 第一步：创建Github项目
 
-假设我们要封装的类库的名字叫 `AwesomeKit`，那么在Github上创建对应的项目，并将其Clone到本地。
+假设我们要封装的类库的名字叫 `AwesomeKit`，那么首先在Github上创建对应的项目，并将其Clone到本地。
 
 ### 第二步：创建Framework项目
 
-创建iOS Framework，如下图所示：
+创建iOS 动态类库，如下图所示：
 
 ![](/assets/images/2020/awesomekit_create_framework@2x.png)
 
@@ -114,6 +114,10 @@ let package = Package(
 )
 ```
 
+### 第五步：创建Example
+
+在完成类库的封装后，就可以写一个例子引用封装的轮子了，推荐使用Pod的方式。创建`AwesomeKitExample` iOS项目，将其放到根目录下的`Example`文件夹中。像平时使用Pod的方式，添加Podfile，执行 `pod install`。
+
 此时目录结构大致如下：
 
 ```
@@ -171,7 +175,8 @@ let package = Package(
 ```
 
 
-### 第五步：提交到Github
+### 第六步：提交到Github
+
 
 ```bash
 $ git add .
@@ -181,11 +186,23 @@ $ git tag 0.0.1
 $ git push --tags
 ```
 
-将类库发布到CocoaPods Trunk：
+##### CocoaPods
+
+将类库发布到CocoaPods Trunk，首次提交时可能需要让你注册，按照提示完成即可
 
 ```bash
 $ pod trunk push AwesomeKit.podspec
 ```
+
+##### Carthage
+
+只需要验证一下 Carthage即可
+
+```bash
+$ carthage build --no-skip-current
+```
+
+查看Carthage/Build目录下是否有 AwesomeKit.framework
 
 ### 一些注意点
 
