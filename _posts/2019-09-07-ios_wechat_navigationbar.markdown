@@ -1,34 +1,36 @@
 ---
 layout: post
-title:  "iOS逆向: 一步一步实现微信导航栏"
+title:  "开源项目: 微信导航栏"
 date:   2019-09-07 11:33:10 +0800
 tag: WeChat
 ---
 
 iOS项目开发中，难免被iOS导航栏折，比较折腾的地方在:
 
-- 自定义返回图标
-- 纯色导航栏与系统导航栏的平滑切换
-- 系统导航栏与隐藏导航栏的平滑切换
+- 自定义返回图标、隐藏返回按钮的文字
+- 纯色导航栏与系统导航栏的平滑切换（比如微信的收付款页面）
+- 系统导航栏与隐藏导航栏的平滑切换（比如微信朋友圈）
 - 一些特立独行的PM或UI想要扩大导航栏的高度，比如50pt（系统默认是 44pt）
+- 全屏返回手势
+- ...
 
 > 而且产品经常会飘来一句话：“咦，微信的导航栏怎么这么平滑”
 
 ## 常见自定义导航栏 
 
-### 设置背景透明
+##### 设置背景透明
 
 ```swift
 navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
 ```
 
-### 隐藏导航栏底部黑线
+##### 隐藏导航栏底部黑线
 
 ```swift
 navigationController?.navigationBar.shadowImage = UIImage()
 ```
 
-### 自定义返回按钮图标
+##### 自定义返回按钮图标
 
 ```swift
 navigationController?.navigationBar.backIndicatorImage = UIImage(named: "icons_outlined_back")
@@ -94,7 +96,7 @@ FakeNavigationBar 是继承自 MMUINavigationBar，提供了一个可以添加su
 
 ## MMUINavigationController
 
-这个比较有意思了。
+微信所有的NavigationController都使用的继承自 `UINavigationController`的`MMUINavigationController`
 
 ```objective-c
 @interface MMUINavigationController : UINavigationController <UINavigationControllerDelegate>
@@ -116,6 +118,8 @@ FakeNavigationBar 是继承自 MMUINavigationBar，提供了一个可以添加su
 
 @end
 ```
+
+从头文件中可以看到，`MMUINavigationController`重写了`UINavigationController`的一些生命周期方法，在里面处理一些相关的逻辑。
 
 ## MMUIViewController
 
@@ -145,9 +149,7 @@ FakeNavigationBar 是继承自 MMUINavigationBar，提供了一个可以添加su
 }
 
 @property(retain, nonatomic) UIPanGestureRecognizer *scrollViewInteractivePanGesture; // @synthesize scrollViewInteractivePanGesture=_scrollViewInteractivePanGesture;
-@property(retain, nonatomic) WCEventTrackingSystemConfig *trackingSystemConfig; // @synthesize trackingSystemConfig=_trackingSystemConfig;
 @property(retain, nonatomic) MMNavBarInteractiveConfig *navBarInteractiveConfig; // @synthesize navBarInteractiveConfig=_navBarInteractiveConfig;
-@property(retain, nonatomic) NSMutableArray *m_arrEndUserOpInfo; // @synthesize m_arrEndUserOpInfo;
 @property(nonatomic) unsigned int m_uiVcType; // @synthesize m_uiVcType;
 
 - (id)mmNavigationController:(id)arg1 interactionControllerForAnimationController:(id)arg2;
@@ -165,10 +167,6 @@ FakeNavigationBar 是继承自 MMUINavigationBar，提供了一个可以添加su
 - (id)getNavBarSepLine;
 - (void)initNavibarSepLine;
 - (void)initNavHeaderIfNeed;
-- (id)getBarButtonWithImageName:(id)arg1 target:(id)arg2 action:(SEL)arg3 style:(unsigned long long)arg4 accessibility:(id)arg5 color:(id)arg6;
-- (id)getBarButtonWithTitle:(id)arg1 target:(id)arg2 action:(SEL)arg3 style:(unsigned long long)arg4 color:(id)arg5;
-- (id)getBarButtonWithImageName:(id)arg1 target:(id)arg2 action:(SEL)arg3 style:(unsigned long long)arg4 accessibility:(id)arg5;
-- (id)getBarButtonWithTitle:(id)arg1 target:(id)arg2 action:(SEL)arg3 style:(unsigned long long)arg4;
 - (_Bool)useWhiteForegroundColor;
 - (id)navigationTitleColor;
 - (void)onNavigationBarBackgroundColorChange;
@@ -195,11 +193,9 @@ FakeNavigationBar 是继承自 MMUINavigationBar，提供了一个可以添加su
 - (_Bool)hasTitle;
 - (void)setTitleView:(id)arg1;
 - (void)setTitleColor:(id)arg1;
-- (void)setTitle:(id)arg1;
 - (void)restoreNavigationBarBkg;
 - (void)removeNavigationBarBkg;
 - (void)onMainWindowFrameChanged;
-- (void)viewDidLayoutSubviews;
 - (void)viewDidTransitionToNewSize;
 - (void)setAutolayoutTopOffset:(double)arg1 forView:(id)arg2;
 - (double)getContentViewYforTranslucentNaviBar;
@@ -222,9 +218,30 @@ FakeNavigationBar 是继承自 MMUINavigationBar，提供了一个可以添加su
 
 ```
 
-比较感兴趣的是如下的方法
+`MMUIViewController`中有很多对导航栏处理的方法和属性。
 
-- (_Bool)useTransparentNavibar;
-- (_Bool)navigationBarBlurEffect;
+## WXNavigationBar
 
-## 
+仿照微信的实现方式，做了一个仿微信导航栏的类库，无需任何配置，直接使用即可。
+
+- 支持设置导航栏背景颜色
+- 支持设置导航栏背景图片
+- 支持Large Title模式
+- 支持iOS 13 暗黑模式
+- 支持全屏手势返回
+
+### 实现原理
+
+WXNavigationBar通过将系统导航栏设为透明，在View中添加一个NavigationBar相同大小，相同位置的View作为假的导航栏。
+
+原始的UINavigationBar还是用于处理手势相关逻辑，WXNavigationBar用于展示部分，比如背景颜色、背景图片等。
+
+所以你可以像平常使用UINavigationBar一样，当你需要处理导航栏显示的时候，使用WXNavigationBar
+
+### 使用方式
+
+使用WXNavigationBar不需要特殊的初始化配置，默认的就如同微信中的导航栏一样。当你需要配置时，有两种方式可以配置。
+
+使用UINavigationController.Nav中的属性对UINavigationController进行配置，或者重写UIViewController中的相关属性对UIViewController进行配置。
+
+具体的用法可以参考 [WXNavigationBar](https://github.com/alexiscn/wxnavigationbar)
