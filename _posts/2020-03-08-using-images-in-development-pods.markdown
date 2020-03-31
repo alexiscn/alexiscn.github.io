@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "iOS Tips: Using image catalog in development pods"
+title:  "iOS Tips: Using Image Catalog in DevelopmentPods"
 date:   2020-03-08 19:02:10 +0800
 tag: tips
 ---
