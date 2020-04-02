@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "创建支持CocoaPods、Carthage、Swift Package Manager的开源类库"
+title:  "同时支持CocoaPods、Carthage、SPM的开源类库"
 date:   2020-03-02 19:32:10 +0800
 tag: 经验分享
 ---

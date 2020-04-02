@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "iOS Tips: 解决MKMapView无法响应interactivePopGestureRecognizer"
+title:  "解决MKMapView无法响应interactivePopGestureRecognizer"
 date:   2020-03-07 12:01:10 +0800
 tag: tips
 ---

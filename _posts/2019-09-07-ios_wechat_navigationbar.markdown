@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "开源项目: 实现iOS微信导航栏"
+title:  "仿iOS微信导航栏"
 date:   2019-09-07 11:33:10 +0800
 tag: WeChat
 ---

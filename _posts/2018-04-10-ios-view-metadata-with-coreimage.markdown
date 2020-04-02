@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "iOS通过CoreImage查看PHAsset的Metadata信息"
+title:  "查看PHAsset的Metadata信息"
 date:   2018-04-10 10:21:30 +0800
 tag: 开源项目
 ---

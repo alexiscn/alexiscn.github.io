@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Cocoa项目 - StocksBar"
+title:  "StocksBar - 在mac菜单栏上看股票"
 date:   2019-05-05 11:33:10 +0800
 tag: 开源项目
 ---

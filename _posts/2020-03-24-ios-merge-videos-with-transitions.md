@@ -91,20 +91,25 @@ public protocol AVVideoCompositing : NSObjectProtocol {
 }
 ```
 
-#### 合成的步骤
+### 合成的步骤
 
 - 创建 AVMutableComposition
 - 往 AVMutableComposition 添加 videoTrack 和 audioTrack
-- xxxx
+- 计算每个Track对应的TimeRange
+- 进行合成与导出
 
 
+### 简单的视频拼接
 
+简单的视频拼接是指将视频直接合并，没有转场效果。按照一般的理解就是简单的把两个视频合并在一起。按照上述的合成步骤，其伪代码实现大致如下：
 
+![](/assets/images/2020/composition_normal@2x.jpg)
 
-#### 简单的视频拼接
+#### 带有转场效果的拼接
 
+带有转场效果的拼接，就是把上一段视频的末尾和下一段视频的开头部分做一些像素操作
 
-
+![](/assets/images/2020/composition_transition@2x.jpg)
 
 ## 视频导出
 
@@ -126,7 +131,7 @@ Error Domain=AVFoundationErrorDomain Code=-11838 "Operation Stopped" UserInfo={N
 导致错误的原因是，进行合并的视频没有音频文件，但用来导出的 AVMutableComposition 却添加了 音频文件的 Track.
 
 
-参考链接
+## 参考链接
 
 * [CMTime](https://developer.apple.com/documentation/coremedia/cmtime-u58)
 * [CMTimeRange]()

@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "mac升级Python2.7 到3.7"
+title:  "mac Catalina升级Python2.7 到3.7"
 date:   2020-03-31 19:02:10 +0800
 tag: Python
 ---
