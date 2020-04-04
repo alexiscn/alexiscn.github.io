@@ -54,7 +54,7 @@ let pixelBufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: 
 pixelBufferAdaptor.append(buffer, withPresentationTime: presentTime)
 ```
 
-苹果推荐`CVPixelBuffer`用`AVAssetWriterInputPixelBufferAdaptor`的[pixelBufferPool来创建以提高性能，参考 [AVAssetWriterInputPixelBufferAdaptor](https://developer.apple.com/documentation/avfoundation/avassetwriterinputpixelbufferadaptor)。
+苹果推荐`CVPixelBuffer`用`AVAssetWriterInputPixelBufferAdaptor`的`pixelBufferPool`来创建以提高性能，参考 [AVAssetWriterInputPixelBufferAdaptor](https://developer.apple.com/documentation/avfoundation/avassetwriterinputpixelbufferadaptor)。
 
 ```swift
 guard let pixelBufferPool = pixelBufferAdaptor.pixelBufferPool else {
@@ -107,6 +107,70 @@ while index < (images.count - 1) {
 }
 ```
 
+## 增加背景音乐
+
+增加背景音乐其实就是将音频文件与视频文件进行混合，我们这里创建一个`AVMutableComposition`，然后将音频与视频添加进合成器，最后使用`AVAssetExportSession`进行导出。
+
+为了简单起见，我们假定整段视频都增加音乐。当然也可以设置音乐的TimeRange，即只在某个时间段增加音乐。
+
+```swift
+private func mixAudio(_ audio: AVAsset, 
+                      video: AVAsset, 
+                      completion: MTMovieMakerCompletion? = nil) throws {
+    guard let videoTrack = video.tracks(withMediaType: .video).first else {
+        fatalError("Can not found videoTrack in Video File")
+    }
+    guard let audioTrack = audio.tracks(withMediaType: .audio).first else {
+        fatalError("Can not found audioTrack in Audio File")
+    }
+    
+    let composition = AVMutableComposition()
+    guard let videoComposition = composition.addMutableTrack(withMediaType: .video, preferredTrackID: CMPersistentTrackID(1)),
+        let audioComposition = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: CMPersistentTrackID(2)) else {
+        return
+    }
+    // TODO:
+}
+```
+
+由于是给视频文件添加背景音乐，所以最后生成的视频文件长度肯定等于输入视频的长度。这时候就需要考虑两种场景：
+
+* 音频文件长度大于等于视频文件长度
+* 音频文件长度小于视频长度
+
+对于音频长度大于视频长度的，处理起来就十分简单，直接将音频截取视频长度，从头插入到 AVMutableComposition中就可以了。
+
+![](/assets/images/2020/AVComposition02.jpg)
+
+```swift
+let audioTimeRange = CMTimeRangeMake(start: .zero, duration: video.duration)
+try audioComposition.insertTimeRange(audioTimeRange, of: audioTrack, at: .zero)
+```
+
+而对于音频长度小于视频长度的，我们需要重复将音频插入到AVMutableComposition中，需要计算每个音频段的TimeRange。
+
+![](/assets/images/2020/AVComposition01.jpg)
+
+```swift
+let repeatCount = Int(video.duration.seconds / audio.duration.seconds)
+let remain = video.duration.seconds.truncatingRemainder(dividingBy: audio.duration.seconds)
+let audioTimeRange = CMTimeRange(start: .zero, duration: audio.duration)
+for i in 0 ..< repeatCount {
+    let start = CMTime(seconds: Double(i) * audio.duration.seconds, preferredTimescale: audio.duration.timescale)
+    try audioComposition.insertTimeRange(audioTimeRange, of: audioTrack, at: start)
+}
+if remain > 0 {
+    let startSeconds = Double(repeatCount) * audio.duration.seconds
+    let start = CMTime(seconds: startSeconds, preferredTimescale: audio.duration.timescale)
+    let remainDuration = CMTime(seconds: remain, preferredTimescale: audio.duration.timescale)
+    let remainTimeRange = CMTimeRange(start: .zero, duration: remainDuration)
+    try audioComposition.insertTimeRange(remainTimeRange, of: audioTrack, at: start)
+}
+```
+
+最后使用`AVAssetExportSession`导出即可，这里就不贴代码了。
+
+
 ## 注意点
 
 writerInput必须要在`isReadyForMoreMediaData`为`true`的时候，才能正常写入数据，否则会抛出异常。所以我们在频繁写入数据之前，要确保改值为`true`，否则需要让线程等待writerInput处理完上一个数据。
@@ -116,7 +180,6 @@ while !writerInput.isReadyForMoreMediaData {
     Thread.sleep(forTimeInterval: 0.01)
 }
 ```
-
 
 ## 内存暴涨
 

@@ -66,15 +66,51 @@ public struct CMTime {
 second = value / timescale
 ```
 
-### 常用的操作
+#### 常用的操作
+
+CoreMedia提供了一些全局方法来操作CMTime对象
+
+| 方法 | 说明 |
+| -- | -- |
+| CMTimeAdd(CMTime, CMTime) -> CMTime | 两个时间相加 |
+| CMTimeSubtract(CMTime, CMTime) -> CMTime | 两个时间相减 |
+| CMTimeMultiply(CMTime, multiplier: Int32) -> CMTime | 两个时间相乘 |
+| CMTimeGetSeconds(CMTime) -> Float64 | 将CMTime转为秒 |
+| CMTimeCompare(CMTime, CMTime) -> Int32 | 比较两个CMTime对象 |
+| CMTimeMaximum(CMTime, CMTime) -> CMTime | 获取两个CMTime中比最大的 |
+| CMTimeMinimum(CMTime, CMTime) -> CMTime | 获取两个CMTime中比最小的 |
+| CMTIME_IS_VALID(CMTime) -> Bool | 检查CMTime是否有效 |
+| CMTIME_IS_INVALID(CMTime) -> Bool | 检查CMTime是否无效 |
+
+如果需要经常对CMTime进行运算，比如时间相加，我们可以重载操作符来简化代码：
+
+```swift
+import CoreMedia
+
+public func +=( lhs: inout CMTime, rhs: CMTime) {
+    lhs = lhs + rhs
+}
+
+public func -=( lhs: inout CMTime, rhs: CMTime) {
+    lhs = lhs - rhs
+}
+```
+
+这样下面的两行代码是等效的
+
+```swift
+let time3 = CMTimeAdd(time1, time2)
+
+let time3 = time1 + time2
+```
 
 
 ## CMTimeRange
 
-`CMTimeRange`用来表示一个时间区间，他有两个属性，开始时间`start`，时间长度`duration`。
+`CMTimeRange`用来表示一个时间区间，他有两个属性，开始时间`start`，时间长度`duration`，结束时间可以通过开始时间与时间长度计算得到。通常使用 `CMTimeRangeMake(start: CMTime, duration: CMTime) -> CMTimeRange` 来创建一个`CMTimeRange`对象。`CMTimeRange`在合成操作的时候会经常用到。
 
 
-## 开始合成
+## 合成
 
 苹果在 iOS7 中增加了视频合成处理的功能 `AVVideoCompositing`
 
@@ -97,6 +133,19 @@ public protocol AVVideoCompositing : NSObjectProtocol {
 - 往 AVMutableComposition 添加 videoTrack 和 audioTrack
 - 计算每个Track对应的TimeRange
 - 进行合成与导出
+
+
+```swift
+let composition = AVMutableComposition()
+composition.naturalSize = videoSize
+```
+
+```swift
+let videoComposition = AVMutableVideoComposition()
+videoComposition.customVideoCompositorClass = MTVideoCompositor.self
+videoComposition.frameDuration = CMTimeMake(value: 1, timescale: 30) // 30 fps.
+videoComposition.renderSize = videoSize
+```
 
 
 ### 简单的视频拼接
