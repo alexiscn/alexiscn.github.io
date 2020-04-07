@@ -60,7 +60,7 @@ public struct CMTime {
 
 `timescale` 。比如`timescale`为4，则每个单元表示1/4秒，如果`timescale`为10，则每个单元表示0.1秒。
 
-记住以下的公式就能很好的理解 CMTime
+记住以下的公式就能很好的理解 CMTime，value除以timescale就是我们平常理解的秒。
 
 ```swift
 second = value / timescale
@@ -87,12 +87,12 @@ CoreMedia提供了一些全局方法来操作CMTime对象
 ```swift
 import CoreMedia
 
-public func +=( lhs: inout CMTime, rhs: CMTime) {
-    lhs = lhs + rhs
+public func + (lhs: CMTime, rhs: CMTime) -> CMTime {
+    return CMTimeAdd(lhs, rhs)
 }
 
-public func -=( lhs: inout CMTime, rhs: CMTime) {
-    lhs = lhs - rhs
+public func - (lhs: CMTime, rhs: CMTime) -> CMTime {
+    return CMTimeSubtract(lhs, rhs)
 }
 ```
 
@@ -107,12 +107,21 @@ let time3 = time1 + time2
 
 ## CMTimeRange
 
-`CMTimeRange`用来表示一个时间区间，他有两个属性，开始时间`start`，时间长度`duration`，结束时间可以通过开始时间与时间长度计算得到。通常使用 `CMTimeRangeMake(start: CMTime, duration: CMTime) -> CMTimeRange` 来创建一个`CMTimeRange`对象。`CMTimeRange`在合成操作的时候会经常用到。
+`CMTimeRange`用来表示一个时间区间，他有两个属性，开始时间`start`，时间长度`duration`，结束时间可以通过开始时间与时间长度计算得到。通常使用 `CMTimeRangeMake(start: CMTime, duration: CMTime) -> CMTimeRange` 来创建一个`CMTimeRange`对象。`CMTimeRange`在合成操作的时候会经常用到，比如在计算应该在哪个时间段做转场效果，应该将视频插入到哪个时间段等等。
+
+```swift
+typedef struct {
+    CMTime start;
+    CMTime duration;
+} CMTimeRange;
+```
+
+
 
 
 ## 合成
 
-苹果在 iOS7 中增加了视频合成处理的功能 `AVVideoCompositing`
+苹果在 iOS7 中增加了视频合成处理的功能 `AVVideoCompositing`。对于`AVPlayerItem`, `AVAssetExportSession`, `AVAssetImageGenerator`, `AVAssetReaderVideoCompositionOutput`实例，如果其videoComposition不为nil，系统会适用自定义的合成器。
 
 ```swift
 public protocol AVVideoCompositing : NSObjectProtocol {
@@ -148,7 +157,7 @@ videoComposition.renderSize = videoSize
 ```
 
 
-### 简单的视频拼接
+#### 简单的视频拼接
 
 简单的视频拼接是指将视频直接合并，没有转场效果。按照一般的理解就是简单的把两个视频合并在一起。按照上述的合成步骤，其伪代码实现大致如下：
 
@@ -156,17 +165,96 @@ videoComposition.renderSize = videoSize
 
 #### 带有转场效果的拼接
 
-带有转场效果的拼接，就是把上一段视频的末尾和下一段视频的开头部分做一些像素操作
+带有转场效果的拼接，就是把上一段视频的末尾和下一段视频的开头部分做一些像素操作。比如渐变的转场效果，就是把A的alpha从1变为0，B的alpha从0变为1，然后做[mix](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/mix.xhtml)运算。
 
 ![](/assets/images/2020/composition_transition@2x.jpg)
 
+
+
 ## 视频导出
 
-`AVAssetExportSession`
+我们需要使用`AVAssetExportSession`将合成的视频导出到本地，首先需要使用`AVAssetExportSession(asset:presetName:)`来初始化`AVAssetExportSession`对象，然后配置输出属性，如`videoComposition`、输出的文件格式、输出的文件路径、输出的时间段等等。
 
+`presetName`是一个字符串，有多种选择
 
-开源地址：[MTTransitions](https://github.com/alexiscn/MTTransitions)
+| 取值 | 说明 | 备注 |
+| --- | --- | --- |
+| AVAssetExportPresetLowQuality | 导出低质量电影(视频H264压缩，音频AAC压缩) | iOS4.0 + |
+| AVAssetExportPresetMediumQuality | 导出中等质量电影(视频H264压缩，音频AAC压缩) | iOS4.0 + |
+| AVAssetExportPresetHighestQuality | 导出最高质量电影(视频H264压缩，音频AAC压缩) |iOS4.0 + |
+| AVAssetExportPresetHEVCHighestQuality | 导出HEVC格式电影(视频HEVC压缩，音频AAC压缩)  | iOS11.0 + |
+| AVAssetExportPresetHEVCHighestQualityWithAlpha | 导出带Alpha通道的HEVC格式电影(视频HEVC压缩，音频AAC压缩) | iOS13.0 + |
+| AVAssetExportPreset640x480 | 导出分辨率为640x480的电影 | iOS4.0 + |
+| AVAssetExportPreset960x540 | 导出分辨率为960x540的电影 | iOS4.0 + |
+| AVAssetExportPreset1280x720 | 导出分辨率为1280x720的电影 | iOS4.0 + |
+| AVAssetExportPreset1920x1080 | 导出分辨率为1920x1080的电影 | iOS5.0 + |
+| AVAssetExportPreset3840x2160 | 导出分辨率为3840x2160的电影 | iOS9.0 + |
+| AVAssetExportPresetHEVC1920x1080 | 导出分辨率为1920x1080HECV格式的电影 | iOS11.0 + |
+| AVAssetExportPresetHEVC1920x1080WithAlpha | 导出分辨率为1920x1080带Alpha通道HECV格式的电影 | iOS13.0 + |
+| AVAssetExportPresetHEVC3840x2160 | 导出分辨率为3840x2160HECV格式的电影 | iOS11.0 + |
+| AVAssetExportPresetHEVC3840x2160WithAlpha | 导出分辨率为3840x2160带Alpha通道HECV格式的电影 | iOS13.0 + |
+| AVAssetExportPresetAppleM4A | 只导出 .m4a 音频文件 | iOS4.0 + |
+| AVAssetExportPresetPassthrough | Passthrough | iOS4.0 +| 
 
+详细的可以参考 
+
+* [Export Preset Names for Device-Appropriate QuickTime Files](https://developer.apple.com/documentation/avfoundation/avassetexportsession/export_preset_names_for_device-appropriate_quicktime_files)
+* [Export Preset Names for QuickTime Files of a Given Size](https://developer.apple.com/documentation/avfoundation/avassetexportsession/export_preset_names_for_quicktime_files_of_a_given_size)
+
+我们可以封装一个导出`AVComposition`的类，传入之前得到的结果。`AVAssetExportSession`提供了一个`progress`的属性来查询当前的导出进度，该值并不是`key-value observable`。所以我们无法用`key-value`去得到进度变化。 我们可以写一个Timer然后去查询当前的导出进度。
+
+```swift
+import AVFoundation
+
+public typealias MTVideoExporterCompletion = (Error?) -> Void
+
+public class MTVideoExporter {
+    
+    private let composition: AVMutableComposition
+    
+    private let videoComposition: AVMutableVideoComposition
+    
+    private let exportSession: AVAssetExportSession
+    
+    public convenience init(transitionResult: MTVideoTransitionResult, presetName: String = AVAssetExportPresetHighestQuality) throws {
+        try self.init(composition: transitionResult.composition, videoComposition: transitionResult.videoComposition, presetName: presetName)
+    }
+    
+    public init(composition: AVMutableComposition,
+                videoComposition: AVMutableVideoComposition,
+                presetName: String = AVAssetExportPresetHighestQuality) throws {
+        self.composition = composition
+        self.videoComposition = videoComposition
+        guard let session = AVAssetExportSession(asset: composition, presetName: presetName) else {
+            fatalError("Can not create AVAssetExportSession, please check composition")
+        }
+        self.exportSession = session
+        self.exportSession.videoComposition = videoComposition
+    }
+    
+    public func export(to fileURL: URL, outputFileType: AVFileType = .mp4, completion: @escaping MTVideoExporterCompletion) {
+        
+        let fileExists = FileManager.default.fileExists(atPath: fileURL.path)
+        if fileExists {
+            do {
+                try FileManager.default.removeItem(atPath: fileURL.path)
+            } catch {
+                print("An error occured deleting the file: \(error)")
+            }
+        }
+        exportSession.outputURL = fileURL
+        exportSession.outputFileType = outputFileType
+        
+        let startTime = CMTimeMake(value: 0, timescale: 1)
+        let timeRange = CMTimeRangeMake(start: startTime, duration: composition.duration)
+        exportSession.timeRange = timeRange
+        
+        exportSession.exportAsynchronously(completionHandler: { [weak self] in
+            completion(self?.exportSession.error)
+        })
+    }
+}
+```
 
 ## 遇到的问题
 
@@ -179,6 +267,7 @@ Error Domain=AVFoundationErrorDomain Code=-11838 "Operation Stopped" UserInfo={N
 
 导致错误的原因是，进行合并的视频没有音频文件，但用来导出的 AVMutableComposition 却添加了 音频文件的 Track.
 
+开源地址：[MTTransitions](https://github.com/alexiscn/MTTransitions)
 
 ## 参考链接
 

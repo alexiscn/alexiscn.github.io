@@ -133,7 +133,14 @@ private func mixAudio(_ audio: AVAsset,
 }
 ```
 
-由于是给视频文件添加背景音乐，所以最后生成的视频文件长度肯定等于输入视频的长度。这时候就需要考虑两种场景：
+由于是给视频文件添加背景音乐，所以最后生成的视频文件长度肯定等于输入视频的长度。将视频添加到合成器中十分简单：
+
+```swift
+let videoTimeRange = CMTimeRange(start: .zero, duration: video.duration)
+try videoComposition.insertTimeRange(videoTimeRange, of: videoTrack, at: .zero)
+```
+
+将音频插入合成器中需要考虑两种场景：
 
 * 音频文件长度大于等于视频文件长度
 * 音频文件长度小于视频长度
