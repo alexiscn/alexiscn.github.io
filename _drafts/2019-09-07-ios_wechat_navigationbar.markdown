@@ -134,7 +134,6 @@ FakeNavigationBar 是继承自 MMUINavigationBar，提供了一个可以添加su
     MMUINavigationBar *fakeNaviView;
     UIView *m_navHeaderView;
     UIView *m_navSepLine;
-    double m_navWidth;
     NSString *m_navTitle;
     NSString *m_navSubTitle;
     _Bool m_navLoading;
@@ -189,8 +188,6 @@ FakeNavigationBar 是继承自 MMUINavigationBar，提供了一个可以添加su
 - (void)setTitleOnly:(id)arg1;
 - (void)setTitleInterfaceOritation:(long long)arg1;
 - (void)reloadTitleView;
-- (double)getRightBarButtonWidth;
-- (double)getLeftBarButtonWidth;
 - (double)adjustedStatusBarHeight;
 - (_Bool)hasTitle;
 - (void)setTitleView:(id)arg1;
@@ -198,10 +195,6 @@ FakeNavigationBar 是继承自 MMUINavigationBar，提供了一个可以添加su
 - (void)setTitle:(id)arg1;
 - (void)restoreNavigationBarBkg;
 - (void)removeNavigationBarBkg;
-- (void)onMainWindowFrameChanged;
-- (void)viewDidLayoutSubviews;
-- (void)viewDidTransitionToNewSize;
-- (void)setAutolayoutTopOffset:(double)arg1 forView:(id)arg2;
 - (double)getContentViewYforTranslucentNaviBar;
 - (void)updateNavibarSepline;
 - (void)adjustViewAndNavBarRect;
@@ -227,4 +220,16 @@ FakeNavigationBar 是继承自 MMUINavigationBar，提供了一个可以添加su
 - (_Bool)useTransparentNavibar;
 - (_Bool)navigationBarBlurEffect;
 
-## 
+## 猜测原理
+
+微信导航栏的猜测
+
+- 使用了系统的导航栏
+- 使用了假的UIView作为有特殊
+
+
+## 实现 MMNavigationBar
+
+## 实现 MMNavigationController
+
+## 实现 MMViewController
