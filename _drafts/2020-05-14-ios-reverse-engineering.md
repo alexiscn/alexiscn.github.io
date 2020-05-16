@@ -13,7 +13,9 @@ tag: iOS
 | [Hopper Disassembler](https://www.hopperapp.com/) | 查看与调试代码 |
 | [MonekeyDev](https://github.com/AloneMonkey/MonkeyDev) | 神器，可以对砸过壳的应用做很多事情 |
 | [iOS Images Extractor](https://github.com/devcxm/iOS-Images-Extractor) | 用于提取ipa中的图片资源 |
-| [PP助手]() | 目前PP助手应该 |
+| [PP助手]() | 主要用来下载砸壳过的ipa，也用于打开SSH连接 |
+| [爱思助手](https://www.i4.cn/) | 类似PP助手 |
+| [frida-ios-dump](https://github.com/AloneMonkey/frida-ios-dump) | 用于将ipa从越狱手机中导出，导出的ipa已砸壳 |
 
 ## 越狱
 
@@ -26,9 +28,11 @@ tag: iOS
 | [Chimera](https://chimera.sh/) | iOS 12.0 - iOS 1.2 以及 iOS 12.4 | 所有设备 |
 | [Checkra1n](https://checkra.in/) | iOS 12.3 以上 | iPhone 5s 以上设备 |
 
-## 统计使用
+## 统计使用的第三方类库
 
-https://www.objc.io/issues/24-audio/audio-api-overview/
+使用class-dump导出头文件后，统计以 `PodsDummy_` 开头的
+
+[WeChatShot](https://github.com/lefex/WeChatShot) 目录下 podlib/source，将main.py中的路径修改为
 
 
 ## 查看App应用内数据
