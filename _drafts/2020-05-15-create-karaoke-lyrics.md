@@ -5,6 +5,8 @@ date:   2020-05-15 10:30:10 +0800
 tag: iOS
 ---
 
+![歌词预览](/assets/images/2020/lyrics_preview@2x.jpg)
+
 ## 需求分析：
 
 一个基本的卡拉OK歌词App（如QQ音乐歌词、全民K歌）具备如下的功能：
@@ -203,13 +205,24 @@ class QRCParser: NSObject {
 
 ## 逐字动画
 
-想要实现逐字动画，第一反应是使用`CAKeyFrameAnimation`关键帧动画
-
-目前行业内的做法基本上类似Facebook [Shimmer](https://github.com/facebook/Shimmer)，即使用CALayer的mask属性来实现动画。
+想要实现逐字动画，第一反应是使用`CAKeyFrameAnimation`关键帧动画，即对每个字都做动画，每个字都有不同的动画时长。目前行业内的做法基本上类似Facebook [Shimmer](https://github.com/facebook/Shimmer)，即使用CALayer的mask属性来实现动画。
 
 ```swift
-// TODO
+class LyricsTableViewCell: UITableViewCell {
+
+    private let contentLabel: UILabel
+    
+    private let maskLabel: UILabel
+    
+    private var maskLayer: CALayer?
+
+    func startAnimation() {
+        // TODO
+    }
+}
 ```
+
+
 
 ## 歌词暂停与恢复
 

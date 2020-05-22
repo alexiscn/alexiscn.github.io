@@ -90,6 +90,12 @@ static __attribute__((constructor)) void entry(){
 
 于是一步一步Debug发现，_webUploader没有初始化成功，原因是 GCDWebUploader 使用了Bundle来加载网页资源，比较暴力的解法就是修改GCDWebUploader源代码，把 `[NSBundle bundleForClass:[GCDWebUploader class]]`替换为`[NSBundle mainBundle]`，然后把`GCDWebUploader.bundle`复制到应用内即可。
 
+## 越狱检测
+
+一些App为了防止逆向工作，做了一些限制操作。比如微信如果检测到你在逆向微信应用的话，有可能会导致封号。目前做得比较好的应该是Snapchat
+
+应用内检测手机是否越狱有多种办法。
+
 #### passionfruit
 
 ## 遇到的问题
