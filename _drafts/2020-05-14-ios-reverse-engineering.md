@@ -19,20 +19,30 @@ tag: iOS
 
 ## 越狱
 
-目前有多种越狱办法，笔者采用的是 [Electra](https://coolstar.org/electra/)，按照操作步骤就可以了，主要是要有对应系统的设备。
+目前有多种越狱办法，笔者采用的是 [Unc0ver](https://unc0ver.dev/)，按照操作步骤就可以了，十分方便，并且支持最新的iOS 13.5
 
 | 名称 | 支持iOS版本 | 说明 |
 | -- | -- | -- |
 | [Electra](https://coolstar.org/electra/) | iOS 11 - iOS 11.4.1 | 所有设备 |
-| [Unc0ver](https://unc0ver.dev/) | iOS 11.0 - iOS 13.3 | - |
+| [Unc0ver](https://unc0ver.dev/) | iOS 11.0 - iOS 13.5 | - |
 | [Chimera](https://chimera.sh/) | iOS 12.0 - iOS 1.2 以及 iOS 12.4 | 所有设备 |
 | [Checkra1n](https://checkra.in/) | iOS 12.3 以上 | iPhone 5s 以上设备 |
+
+越狱后手机上会多出来一个`Cydia`应用图标，接下来就装一些必备的插件了
+
+* AFC2 - 激活PC端全路径访问。 AFC2需要添加 ABCydia/雷锋源 [https://apt.abcydia.com](https://apt.abcydia.com)
+* FLEXing - 作者是Tanner Bennett，在Cydia自带的BigBoss源中就有，直接搜索就可以，安装后会重启SpringBoard，然后就可以长按导航栏唤出 FLEX的工具条了
+* OpenSSH - 通过Terminal访问手机
+* Frida - 添加 源 `build.frida.re`，下载合适的frida
+* LookinLoader - 将Lookin集成到App中，连接到电脑后，可以用mac端的Lookin查看应用的UI结构，类似于Reveal
 
 ## 统计使用的第三方类库
 
 使用class-dump导出头文件后，统计以 `PodsDummy_` 开头的
 
-[WeChatShot](https://github.com/lefex/WeChatShot) 目录下 podlib/source，将main.py中的路径修改为
+[WeChatShot](https://github.com/lefex/WeChatShot) 目录下 podlib/source，将main.py中的路径修改为头文件所在的路劲，执行 python main.py即可。
+
+简单看了下源代码，其原理就是将CocoaPods所有第三方库拉取到本地存到数据库中，然后提取字符串中PodsDummy开头的字符串，在数据库中进行查找，再按照类库Star进行排序。
 
 
 ## 查看App应用内数据
@@ -41,13 +51,11 @@ tag: iOS
 
 对于越狱手机也十分简单，可以安装爱思助手之类的软件，直接可以在软件中流
 
-#### 对于砸过壳的
-
-### 查看UI细节
-
 #### FLEX
 
 [FLEX](https://github.com/Flipboard/FLEX) 是Flipboard提供的一款强大的应用内调试工具。
+
+![FLEX](/assets/images/2020/flexing.jpg)
 
 * 查看视图层级，修改视图
 * 查看在堆上的对象
@@ -90,23 +98,9 @@ static __attribute__((constructor)) void entry(){
 
 于是一步一步Debug发现，_webUploader没有初始化成功，原因是 GCDWebUploader 使用了Bundle来加载网页资源，比较暴力的解法就是修改GCDWebUploader源代码，把 `[NSBundle bundleForClass:[GCDWebUploader class]]`替换为`[NSBundle mainBundle]`，然后把`GCDWebUploader.bundle`复制到应用内即可。
 
-## 越狱检测
-
-一些App为了防止逆向工作，做了一些限制操作。比如微信如果检测到你在逆向微信应用的话，有可能会导致封号。目前做得比较好的应该是Snapchat
-
-应用内检测手机是否越狱有多种办法。
-
-#### passionfruit
-
-## 遇到的问题
-
-#### Cydia无网络
-
-安装乐网，开启VPN
-
 #### 越狱后重启失效
 
-由于Eletrac 不是完美越狱，所以会导致重启后越狱失效，解决方案就是重新越狱。
+Unc0ver 不是完美越狱，所以会导致重启后越狱失效，解决方案就是重新越狱。
 
 #### 下载的应用不弹出网络授权
 

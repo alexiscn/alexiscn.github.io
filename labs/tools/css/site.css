@@ -1,0 +1,46 @@
+@font-face{ font-family: "Gotham SSm A"; src: url("Gotham-ExtraLight.otf"); font-weight:200; font-style:normal; } 
+
+* {
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+body,
+input {
+  font: 300 18px/1.2 'Gotham SSm A', 'Gotham SSm B', sans-serif;
+  background: #ffd454;
+}
+
+input {
+  display: block;
+  width: 335px;
+  font-size: 34px;
+  line-height: 44px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dotted rgba(0, 0, 0, 0.4);
+  padding: 5px 0;
+  border-radius: 0;
+}
+input:focus {
+  border-bottom-color: #000;
+  outline: none;
+}
+
+#wrap {
+  width: 340px;
+  height: 125px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -62.5px -170px;
+}
