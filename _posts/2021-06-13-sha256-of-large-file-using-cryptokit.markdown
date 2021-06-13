@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "使用Crypto计算大文件的SHA256"
+title:  "使用CryptoKit计算大文件的SHA256"
 date:   2021-06-13 10:02:10 +0800
 tag: ios
 ---
