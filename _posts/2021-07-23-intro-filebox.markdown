@@ -8,7 +8,7 @@ tag: ios
 本文已经首发在[少数派](https://sspai.com/post/67628)，现在在博客中记录一下。
 
 
-![](/assets/images/filebox/filebox-press.png)
+![](/assets/images/filebox/Filebox-Press.png)
 
 经过十几个版本的迭代，Filebox终于可以向大家公布了。Filebox 是一款基于文件的多媒体管理应用，提供了本地/远程文件管理、本地音乐播放器、视频播放器等功能。
 
